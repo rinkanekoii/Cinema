@@ -208,22 +208,74 @@ router.post('/auth/login', (req, res) => {
     }
 });
 
+// Store demo bookings in memory
+const demoBookings = [];
+
 router.post('/bookings', (req, res) => {
+    const { ma_suat_chieu, ma_ghe_list, phuong_thuc_thanh_toan } = req.body;
+    
+    if (!ma_ghe_list || ma_ghe_list.length === 0) {
+        return res.status(400).json({ success: false, error: 'Vui lòng chọn ít nhất một ghế' });
+    }
+    
+    const showtime = mockShowtimes.find(s => s.MA_SUAT_CHIEU == ma_suat_chieu);
+    if (!showtime) {
+        return res.status(404).json({ success: false, error: 'Không tìm thấy suất chiếu' });
+    }
+    
+    const maHoaDon = `HD${Date.now()}`;
+    const totalAmount = showtime.GIA_VE * ma_ghe_list.length;
+    
+    const booking = {
+        MA_HOA_DON: maHoaDon,
+        MA_SUAT_CHIEU: ma_suat_chieu,
+        TEN_PHIM: showtime.TEN_PHIM,
+        POSTER_URL: showtime.POSTER_URL,
+        TEN_RAP: showtime.TEN_RAP,
+        TEN_PHONG: showtime.TEN_PHONG,
+        THOI_GIAN_BAT_DAU: showtime.THOI_GIAN_BAT_DAU,
+        GHE: ma_ghe_list.map(id => `Ghế ${id}`).join(', '),
+        TONG_TIEN: totalAmount,
+        PHUONG_THUC: phuong_thuc_thanh_toan || 'CASH',
+        TRANG_THAI: 'DA_DAT',
+        NGAY_DAT: new Date().toISOString()
+    };
+    
+    demoBookings.push(booking);
+    
     res.json({
-        success: false,
-        error: 'Booking not available in demo mode',
-        demo: true,
-        message: 'Please set up database to book tickets'
+        success: true,
+        message: 'Đặt vé thành công (Demo Mode)',
+        ma_hoa_don: maHoaDon,
+        total_amount: totalAmount,
+        tickets: ma_ghe_list.map((id, i) => ({ MA_VE: Date.now() + i, MA_GHE: id, GIA_VE: showtime.GIA_VE })),
+        demo: true
     });
 });
 
 router.get('/bookings/my-bookings', (req, res) => {
     res.json({
         success: true,
-        data: [],
-        demo: true,
-        message: 'No bookings in demo mode'
+        data: demoBookings.map((b, i) => ({
+            MA_VE: i + 1,
+            MA_HOA_DON: b.MA_HOA_DON,
+            TEN_PHIM: b.TEN_PHIM,
+            POSTER_URL: b.POSTER_URL,
+            TEN_RAP: b.TEN_RAP,
+            TEN_PHONG: b.TEN_PHONG,
+            THOI_GIAN_BAT_DAU: b.THOI_GIAN_BAT_DAU,
+            TEN_GHE: b.GHE,
+            GIA_VE: b.TONG_TIEN,
+            TRANG_THAI: b.TRANG_THAI,
+            NGAY_DAT: b.NGAY_DAT
+        })),
+        demo: true
     });
+});
+
+// Payment completion (demo)
+router.post('/bookings/payment/:id/complete', (req, res) => {
+    res.json({ success: true, message: 'Payment completed (demo)', demo: true });
 });
 
 // Admin Routes

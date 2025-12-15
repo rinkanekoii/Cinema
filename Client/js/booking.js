@@ -161,7 +161,9 @@ document.getElementById('bookButton').addEventListener('click', async () => {
         const data = await response.json();
         
         if (response.ok && data.success) {
-            await completePayment(data.ma_thanh_toan);
+            if (data.ma_thanh_toan) {
+                await completePayment(data.ma_thanh_toan);
+            }
             
             document.getElementById('successMessage').textContent = 
                 `Mã đơn hàng: ${data.ma_hoa_don}. Tổng tiền: ${data.total_amount.toLocaleString('vi-VN')} ₫`;
