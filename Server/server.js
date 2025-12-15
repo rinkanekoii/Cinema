@@ -8,6 +8,7 @@ require('dotenv').config();
 const DEMO_MODE = process.env.DEMO_MODE === 'true' || !process.env.DB_USER;
 
 let db, authRoutes, movieRoutes, showtimeRoutes, bookingRoutes;
+let isShuttingDown = false;
 
 if (!DEMO_MODE) {
     db = require('./config/database');
@@ -74,16 +75,15 @@ async function startup() {
     }
 }
 
-process.on('SIGTERM', async () => {
-    console.log('SIGTERM signal received: closing HTTP server');
+async function gracefulShutdown(signal) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log(`${signal} signal received: closing HTTP server`);
     if (!DEMO_MODE && db) await db.close();
     process.exit(0);
-});
+}
 
-process.on('SIGINT', async () => {
-    console.log('SIGINT signal received: closing HTTP server');
-    if (!DEMO_MODE && db) await db.close();
-    process.exit(0);
-});
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 startup();
