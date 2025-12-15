@@ -1,0 +1,66 @@
+-- =============================================
+-- CINEMA HUB - 02. Privileges and Grants
+-- Run as SYS or SYSTEM user
+-- =============================================
+
+ALTER SESSION SET "_ORACLE_SCRIPT"=true;
+SET SERVEROUTPUT ON;
+
+-- Basic privileges
+GRANT CONNECT TO CINEMA_DB;
+GRANT RESOURCE TO CINEMA_DB;
+GRANT CREATE SESSION TO CINEMA_DB;
+GRANT CREATE VIEW TO CINEMA_DB;
+GRANT CREATE PROCEDURE TO CINEMA_DB;
+GRANT CREATE SEQUENCE TO CINEMA_DB;
+GRANT CREATE TRIGGER TO CINEMA_DB;
+GRANT CREATE SYNONYM TO CINEMA_DB;
+GRANT UNLIMITED TABLESPACE TO CINEMA_DB;
+
+-- Encryption packages (required for password hashing)
+GRANT EXECUTE ON DBMS_CRYPTO TO CINEMA_DB;
+GRANT EXECUTE ON DBMS_RANDOM TO CINEMA_DB;
+GRANT EXECUTE ON UTL_I18N TO CINEMA_DB;
+GRANT EXECUTE ON UTL_RAW TO CINEMA_DB;
+GRANT EXECUTE ON UTL_ENCODE TO CINEMA_DB;
+GRANT EXECUTE ON DBMS_LOB TO CINEMA_DB;
+
+-- Audit and logging packages
+GRANT EXECUTE ON DBMS_OUTPUT TO CINEMA_DB;
+
+-- Session info access
+GRANT SELECT ON V_$SESSION TO CINEMA_DB;
+
+-- Create application roles
+BEGIN
+    EXECUTE IMMEDIATE 'DROP ROLE cinema_admin_role';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP ROLE cinema_staff_role';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP ROLE cinema_user_role';
+EXCEPTION WHEN OTHERS THEN NULL;
+END;
+/
+
+CREATE ROLE cinema_admin_role;
+CREATE ROLE cinema_staff_role;
+CREATE ROLE cinema_user_role;
+
+-- Grant roles to CINEMA_DB
+GRANT cinema_admin_role TO CINEMA_DB;
+GRANT cinema_staff_role TO CINEMA_DB;
+GRANT cinema_user_role TO CINEMA_DB;
+
+DBMS_OUTPUT.PUT_LINE('');
+DBMS_OUTPUT.PUT_LINE('=== Grants applied successfully ===');
+DBMS_OUTPUT.PUT_LINE('Roles created: cinema_admin_role, cinema_staff_role, cinema_user_role');
+DBMS_OUTPUT.PUT_LINE('');
+DBMS_OUTPUT.PUT_LINE('Next: Connect as CINEMA_DB and run 03_schema.sql');

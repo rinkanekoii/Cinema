@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - CinemaHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-md w-full bg-gray-800 rounded-lg shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-red-500">
+                    <i class="fas fa-film"></i> CinemaHub
+                </h1>
+                <p class="text-gray-400 mt-2">Đăng nhập vào tài khoản của bạn</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">Tên đăng nhập</label>
+                    <input type="text" id="ten_dang_nhap" required
+                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-red-500">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2">Mật khẩu</label>
+                    <input type="password" id="mat_khau" required
+                        class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-red-500">
+                </div>
+
+                <div id="errorMessage" class="hidden mb-4 p-3 bg-red-600 bg-opacity-20 border border-red-600 rounded-lg text-sm"></div>
+
+                <button type="submit" 
+                    class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition">
+                    Đăng nhập
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-400">
+                    Chưa có tài khoản? 
+                    <a href="/register.html" class="text-red-500 hover:underline">Đăng ký ngay</a>
+                </p>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a href="/" class="text-gray-400 hover:text-white text-sm">
+                    <i class="fas fa-arrow-left"></i> Quay về trang chủ
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/login.js"></script>
+</body>
+</html>

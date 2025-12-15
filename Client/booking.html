@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt vé - CinemaHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .seat.available {
+            background-color: #4B5563;
+        }
+        .seat.available:hover {
+            background-color: #6B7280;
+            transform: scale(1.1);
+        }
+        .seat.selected {
+            background-color: #DC2626;
+        }
+        .seat.booked {
+            background-color: #374151;
+            cursor: not-allowed;
+        }
+        .seat.vip {
+            border: 2px solid #FBBF24;
+        }
+        .screen {
+            background: linear-gradient(to bottom, #6B7280, #374151);
+            height: 8px;
+            border-radius: 50%;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <nav class="bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="/" class="text-2xl font-bold text-red-500">
+                    <i class="fas fa-film"></i> CinemaHub
+                </a>
+                <div id="navAuth"></div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="container mx-auto px-4 py-8">
+        <div id="showtimeInfo" class="bg-gray-800 rounded-lg p-6 mb-8"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4">Chọn Ghế</h2>
+                    
+                    <div class="mb-6 flex justify-center space-x-6 text-sm">
+                        <div class="flex items-center">
+                            <div class="seat available mr-2"></div>
+                            <span>Trống</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="seat selected mr-2"></div>
+                            <span>Đang chọn</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="seat booked mr-2"></div>
+                            <span>Đã đặt</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="seat available vip mr-2"></div>
+                            <span>VIP</span>
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <p class="text-gray-400 mb-2">Màn hình</p>
+                        <div class="screen"></div>
+                    </div>
+
+                    <div id="seatsContainer" class="flex flex-col items-center">
+                        <div class="text-center py-8">
+                            <i class="fas fa-spinner fa-spin text-4xl text-red-500"></i>
+                            <p class="mt-4">Đang tải sơ đồ ghế...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-gray-800 rounded-lg p-6 sticky top-24">
+                    <h3 class="text-xl font-bold mb-4">Thông Tin Đặt Vé</h3>
+                    
+                    <div id="selectedSeatsInfo" class="mb-4 text-gray-400">
+                        <p>Chưa chọn ghế</p>
+                    </div>
+
+                    <div class="border-t border-gray-700 pt-4 mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span>Tổng tiền:</span>
+                            <span id="totalAmount" class="text-2xl font-bold text-red-500">0 ₫</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-2">Phương thức thanh toán</label>
+                        <select id="paymentMethod" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg">
+                            <option value="CASH">Tiền mặt</option>
+                            <option value="CARD">Thẻ</option>
+                            <option value="MOMO">MoMo</option>
+                            <option value="VNPAY">VNPay</option>
+                        </select>
+                    </div>
+
+                    <button id="bookButton" disabled
+                        class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition disabled:bg-gray-600 disabled:cursor-not-allowed">
+                        Đặt vé
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+                <h3 class="text-2xl font-bold mb-4">Đặt vé thành công!</h3>
+                <p class="text-gray-400 mb-6" id="successMessage"></p>
+                <div class="space-y-3">
+                    <a href="/my-bookings.html" class="block w-full py-3 bg-red-600 hover:bg-red-700 rounded-lg font-semibold transition">
+                        Xem vé của tôi
+                    </a>
+                    <a href="/movies.html" class="block w-full py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition">
+                        Tiếp tục đặt vé
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2024 CinemaHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/booking.js"></script>
+</body>
+</html>
