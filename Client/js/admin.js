@@ -215,30 +215,30 @@ async function loadShowtimes() {
 
 async function loadTheaters() {
     const theatersGrid = document.getElementById('theatersGrid');
+    theatersGrid.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-4xl text-red-500"></i></div>';
     
-    const mockTheaters = [
-        { MA_RAP: 1, TEN_RAP: 'CGV Vincom', DIA_CHI: '72 Lê Thánh Tôn, Q1, TP.HCM', SO_PHONG: 8 },
-        { MA_RAP: 2, TEN_RAP: 'Lotte Cinema', DIA_CHI: '469 Nguyễn Hữu Thọ, Q7, TP.HCM', SO_PHONG: 6 },
-        { MA_RAP: 3, TEN_RAP: 'Galaxy Cinema', DIA_CHI: '116 Nguyễn Du, Q1, TP.HCM', SO_PHONG: 5 }
-    ];
-    
-    theatersGrid.innerHTML = mockTheaters.map(theater => `
-        <div class="bg-gray-800 rounded-xl p-6">
-            <div class="flex justify-between items-start mb-4">
-                <h3 class="text-xl font-bold">${theater.TEN_RAP}</h3>
-                <span class="bg-blue-600 px-2 py-1 rounded text-sm">${theater.SO_PHONG} phòng</span>
-            </div>
-            <p class="text-gray-400 mb-4"><i class="fas fa-map-marker-alt mr-2"></i>${theater.DIA_CHI}</p>
-            <div class="flex space-x-2">
-                <button class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition">
-                    <i class="fas fa-edit mr-2"></i>Sửa
-                </button>
-                <button class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>
-    `).join('');
+    try {
+        const response = await fetch(`${API_BASE}/showtimes/theaters`);
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.length > 0) {
+            theatersGrid.innerHTML = data.data.map(theater => `
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-xl font-bold">${theater.TEN_RAP}</h3>
+                        <span class="bg-green-600 px-2 py-1 rounded text-sm">${theater.TRANG_THAI === 'HOAT_DONG' ? 'Hoạt động' : theater.TRANG_THAI}</span>
+                    </div>
+                    <p class="text-gray-400 mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${theater.DIA_CHI || 'Chưa cập nhật'}</p>
+                    <p class="text-gray-400 mb-4"><i class="fas fa-phone mr-2"></i>${theater.SO_DIEN_THOAI || 'Chưa cập nhật'}</p>
+                </div>
+            `).join('');
+        } else {
+            theatersGrid.innerHTML = '<div class="text-center py-8 text-gray-400">Chưa có rạp chiếu nào</div>';
+        }
+    } catch (error) {
+        console.error('Error loading theaters:', error);
+        theatersGrid.innerHTML = '<div class="text-center py-8 text-red-500">Lỗi tải danh sách rạp</div>';
+    }
 }
 
 async function loadUsers() {
@@ -478,20 +478,37 @@ async function loadMoviesForSelect() {
 
 async function loadTheatersForSelect() {
     const select = document.getElementById('stRap');
-    select.innerHTML = `
-        <option value="">-- Chọn rạp --</option>
-        <option value="1">CGV Vincom</option>
-        <option value="2">Lotte Cinema</option>
-        <option value="3">Galaxy Cinema</option>
-    `;
+    select.innerHTML = '<option value="">-- Chọn rạp --</option>';
     
-    select.addEventListener('change', () => {
+    try {
+        const response = await fetch(`${API_BASE}/showtimes/theaters`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+            data.data.forEach(theater => {
+                select.innerHTML += `<option value="${theater.MA_RAP}">${theater.TEN_RAP}</option>`;
+            });
+        }
+    } catch (error) {
+        console.error('Error loading theaters:', error);
+    }
+    
+    select.addEventListener('change', async () => {
         const roomSelect = document.getElementById('stPhong');
         roomSelect.innerHTML = '<option value="">-- Chọn phòng --</option>';
         
         if (select.value) {
-            for (let i = 1; i <= 5; i++) {
-                roomSelect.innerHTML += `<option value="${select.value}${i}">Phòng ${i}</option>`;
+            try {
+                const response = await fetch(`${API_BASE}/showtimes/theaters/${select.value}/rooms`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    data.data.forEach(room => {
+                        roomSelect.innerHTML += `<option value="${room.MA_PHONG}">${room.TEN_PHONG} (${room.LOAI_PHONG})</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading rooms:', error);
             }
         }
     });

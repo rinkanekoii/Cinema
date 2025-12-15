@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 // Set to false to use real Oracle database, true for demo mode with mock data
-const DEMO_MODE = process.env.DEMO_MODE === 'true' || !process.env.DB_USER;
+const DEMO_MODE = process.env.DEMO_MODE === 'true';
 
 let db, authRoutes, movieRoutes, showtimeRoutes, bookingRoutes;
 let isShuttingDown = false;
@@ -35,10 +35,13 @@ if (DEMO_MODE) {
     app.use('/api/movies', movieRoutes);
     app.use('/api/showtimes', showtimeRoutes);
     app.use('/api/bookings', bookingRoutes);
+    // Admin routes (same as regular routes, for admin panel compatibility)
+    app.use('/api/admin/movies', movieRoutes);
+    app.use('/api/admin/showtimes', showtimeRoutes);
 }
 
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running' });
+    res.json({ status: 'OK', message: 'Server is running', demo: DEMO_MODE });
 });
 
 app.get('*', (req, res) => {
@@ -52,6 +55,9 @@ async function startup() {
         console.log('🚀 Starting Movie Booking System Server...');
         
         if (!DEMO_MODE) {
+            if (!process.env.DB_USER || !process.env.DB_PASSWORD || !process.env.DB_CONNECTION_STRING) {
+                throw new Error('Missing database environment variables. Please create Server/.env with DB_USER, DB_PASSWORD, DB_CONNECTION_STRING (or set DEMO_MODE=true).');
+            }
             await db.initialize();
         } else {
             console.log('📝 Demo mode - using mock data');
